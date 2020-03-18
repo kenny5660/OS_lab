@@ -1,0 +1,2 @@
+fibonacci.o: src/fibonacci.c src/fibonacci.h
+main.o: src/main.c src/fibonacci.h

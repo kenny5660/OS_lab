@@ -20,6 +20,7 @@ int main()
           printf(" CHILD: PID моего родителя -- %d\n",getppid());
           printf(" CHILD:x = %d\n",x);
           printf(" CHILD: Введите мой код возврата (как можно меньше):");
+          wait(&rv);
           scanf(" %d",&rv);
           printf(" CHILD: Выход! %d\n", rv);
           exit(rv);

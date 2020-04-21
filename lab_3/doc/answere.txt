@@ -1,0 +1,64 @@
+1.
+    free до
+                  total        used        free      shared  buff/cache   available
+    Mem:        4221752      255152     3331904        5728      634696     3741040
+    Swap:             0           0           0
+    Выделяем 300 мб 
+    ./build/memory-user 300
+    free во время работы
+                  total        used        free      shared  buff/cache   available
+    Mem:        4221752      563784     3023300        5728      634668     3432408
+    Swap:             0           0           0
+    Как и ожидалось used стало на 300мб больше
+    kill
+
+                  total        used        free      shared  buff/cache   available
+    Mem:        4221752      267744     3697528        5728      256480     3732176
+    Swap:             0           0           0
+    память полностью освободитлась
+2.
+      total        used        free      shared  buff/cache   available
+    Mem:        4221752      263980     3702136        5728      255636     3735948
+    Swap:             0           0           0
+
+    Выделяем 2000 мб 
+    ./build/memory-user 2000
+
+                  total        used        free      shared  buff/cache   available
+    Mem:        4221752     2316572     1649544        5728      255636     1683356
+    Swap:             0           0           0
+    Как и ожидалось used стало на 2000мб больше
+    kill
+                      total        used        free      shared  buff/cache   available
+    Mem:        4221752      265964     3700092        5728      255696     3733964
+    Swap:             0           0           0
+    память полностью освободитлась
+3.
+    ./build/memory-user 2000
+    pmap 1432
+    1432:   ./build/memory-user 2000
+    0000562fcf961000      4K r---- memory-user
+    0000562fcf962000      4K r-x-- memory-user
+    0000562fcf963000      4K r---- memory-user
+    0000562fcf964000      4K r---- memory-user
+    0000562fcf965000      4K rw--- memory-user
+    0000562fd08f7000    132K rw---   [ anon ]
+    00007fa67a098000 2048004K rw---   [ anon ]
+    00007fa6f7099000    136K r---- libc-2.28.so
+    00007fa6f70bb000   1312K r-x-- libc-2.28.so
+    00007fa6f7203000    304K r---- libc-2.28.so
+    00007fa6f724f000      4K ----- libc-2.28.so
+    00007fa6f7250000     16K r---- libc-2.28.so
+    00007fa6f7254000      8K rw--- libc-2.28.so
+    00007fa6f7256000     24K rw---   [ anon ]
+    00007fa6f7264000      4K r---- ld-2.28.so
+    00007fa6f7265000    120K r-x-- ld-2.28.so
+    00007fa6f7283000     32K r---- ld-2.28.so
+    00007fa6f728b000      4K r---- ld-2.28.so
+    00007fa6f728c000      4K rw--- ld-2.28.so
+    00007fa6f728d000      4K rw---   [ anon ]
+    00007ffc7c274000    132K rw---   [ stack ]
+    00007ffc7c364000     12K r----   [ anon ]
+    00007ffc7c367000      8K r-x--   [ anon ]
+     total          2050280K
+     Блок номер 00007fa67a098000 имеет размеры 2000мб

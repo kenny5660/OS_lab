@@ -1,0 +1,117 @@
+1. p  - 1й malloc
+   p2 - 2й malloc
+   p указывает на 0x558667286260
+   p2 указывает на 0x5586672862f0
+   следовательно добавление динамической памяти происходит к старшим адресам
+
+    local - 1я локальная переменная, ее адрес 0x7ffc32442a0c
+    p - 2я локальная переменная, ее адрес     0x7ffc32442a00
+    p2 - 3я локальная переменная, ее адрес    0x7ffc324429f8
+    адреса уменьшаяются 
+
+    адрес указателя можно узнать с помощью операции &p
+
+2.
+     в массив name записывается введная пользователем строка
+     name1 записсана строка "Anna" и код меняет местами 1ю и последнюю букву
+
+3.
+    вывод программы null.c
+    a = 5
+    Segmentation fault
+
+    Segmentation fault проиисходит при попытки разименовать указатель на 0, так как ОС блокирует доступ.
+
+4.  
+    вывод gdb 
+    a = 5
+    
+    Program received signal SIGSEGV, Segmentation fault.
+    0x0000555555555190 in main () at src/null.c:13
+    13          printf("a = %d",*p);
+    gdb указывает на ошибку доступа к памяти в строчке 13
+
+5. 
+    вывод valgrind --leak-check=yes ./build/null 
+    ==3516== Invalid read of size 4
+    ==3516==    at 0x109190: main (null.c:13)
+    ==3516==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
+    ==3516== 
+    ==3516== 
+    ==3516== Process terminating with default action of signal 11 (SIGSEGV)
+    ==3516==  Access not within mapped region at address 0x0
+    ==3516==    at 0x109190: main (null.c:13)
+    ==3516==  If you believe this happened as a result of a stack
+    ==3516==  overflow in your program's main thread (unlikely but
+    ==3516==  possible), you can try to increase the size of the
+    ==3516==  main thread stack using the --main-stacksize= flag.
+    ==3516==  The main thread stack size used in this run was 8388608.
+    ==3516== 
+    ==3516== HEAP SUMMARY:
+    ==3516==     in use at exit: 0 bytes in 0 blocks
+    ==3516==   total heap usage: 1 allocs, 1 frees, 1,024 bytes allocated
+    ==3516== 
+    ==3516== All heap blocks were freed -- no leaks are possible
+    ==3516== 
+    ==3516== For counts of detected and suppressed errors, rerun with: -v
+    ==3516== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+
+    вывод указывает на то, что в строчке 13 произойдет Segmentation fault, так как адрес 0 не принадлежит программе null.c
+
+6. программа выполняется без ошибок, но 
+    valgrind --leak-check=yes ./build/bad_malloc
+    ==3924== HEAP SUMMARY:
+    ==3924==     in use at exit: 128 bytes in 1 blocks
+    ==3924==   total heap usage: 3 allocs, 2 frees, 1,280 bytes allocated
+    ==3924== 
+    ==3924== 128 bytes in 1 blocks are definitely lost in loss record 1 of 1
+    ==3924==    at 0x483577F: malloc (vg_replace_malloc.c:299)
+    ==3924==    by 0x10916D: main (bad_malloc.c:9)
+    ==3924== 
+    ==3924== LEAK SUMMARY:
+    ==3924==    definitely lost: 128 bytes in 1 blocks
+    ==3924==    indirectly lost: 0 bytes in 0 blocks
+    ==3924==      possibly lost: 0 bytes in 0 blocks
+    ==3924==    still reachable: 0 bytes in 0 blocks
+    ==3924==         suppressed: 0 bytes in 0 blocks
+    ==3924== 
+    ==3924== For counts of detected and suppressed errors, rerun with: -v
+    ==3924== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+
+    valgrind нашел 1 утечку памяти в 128 байт
+    gdb утечку памяти не нашел
+
+7. программа выполняется без ошибок, но 
+
+    valgrind --leak-check=yes ./build/data
+    ==4238== Memcheck, a memory error detector
+    ==4238== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+    ==4238== Using Valgrind-3.14.0 and LibVEX; rerun with -h for copyright info
+    ==4238== Command: ./build/data
+    ==4238== 
+    ==4238== Invalid write of size 4
+    ==4238==    at 0x109175: main (data.c:7)
+    ==4238==  Address 0x4a101d0 is 0 bytes after a block of size 400 alloc'd
+    ==4238==    at 0x483577F: malloc (vg_replace_malloc.c:299)
+    ==4238==    by 0x109166: main (data.c:6)
+    ==4238== 
+    ==4238== Invalid read of size 4
+    ==4238==    at 0x109185: main (data.c:8)
+    ==4238==  Address 0x4a101d0 is 0 bytes after a block of size 400 alloc'd
+    ==4238==    at 0x483577F: malloc (vg_replace_malloc.c:299)
+    ==4238==    by 0x109166: main (data.c:6)
+
+    valgrind нашел запись и чтение в недоступную область памяти
+
+8. программа выполняется без ошибок, но 
+    valgrind --leak-check=yes ./build/data_free
+    ==4474== Invalid read of size 4
+    ==4474==    at 0x109191: main (data_free.c:9)
+    ==4474==  Address 0x4a10108 is 200 bytes inside a block of size 400 free'd
+    ==4474==    at 0x48369AB: free (vg_replace_malloc.c:530)
+    ==4474==    by 0x109186: main (data_free.c:8)
+    ==4474==  Block was alloc'd at
+    ==4474==    at 0x483577F: malloc (vg_replace_malloc.c:299)
+    ==4474==    by 0x109166: main (data_free.c:6)
+    
+    valgrind нашел чтение в недоступную область памяти

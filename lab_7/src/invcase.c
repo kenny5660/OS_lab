@@ -49,6 +49,8 @@ void invcase(char* str, size_t size, int param){
   if(param == INVCASE_PARAM_1_CHAR){
     invcase_1 (str,size);
   }
+  str[size-1] = '\0';
+  return;
 }
 
 u_int64_t duration(struct timeval* start,struct timeval *end){
@@ -91,6 +93,9 @@ int main(int argv,char ** argc){
     gettimeofday(&end_time,NULL);
     u_int64_t dur8 = duration(&start_time,&end_time);
     printf("Time of 8 char: %d (faster then 1: %f times)\n",dur8,(dur1/(double)dur8));
+    if(argv > 2 && argc[2][0]=='-' && argc[2][1]=='p'){
+       printf("result: %s\n",str);
+    }
 
   }
   return 0;

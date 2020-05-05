@@ -1,0 +1,18 @@
+1. запустим первый тест (параметр -p печатает результат)
+    ./build/invcase test1.txt -p
+25
+Time of 1 char: 0
+Time of 4 char: 0 (faster then 1: -nan times)
+Time of 8 char: 0 (faster then 1: -nan times)
+result: QWERTYUIOASDFGHJKLZXCVBNM
+
+Вывод: программа меняет регистр верно
+
+2. запустим второй тест с довльно длинной строкой
+    ./build/invcase test2.txt
+8206164
+Time of 1 char: 20798
+Time of 4 char: 4985 (faster then 1: 4.172116 times)
+Time of 8 char: 2555 (faster then 1: 8.140117 times)
+
+Вывод: время обработки символов по 4 в 4 раза быстрее, чем по 1. Аналогично для 8 символов. Что подтверждает гипотезу об ускорении обработки.

@@ -1,0 +1,14 @@
+1. 
+./build/simplewrite 
+Create time: 52
+Write time: 249
+close time: 4
+remove time: 66
+
+2. 
+    ./build/onebytewrite 
+    posix_write time: 470670
+    stdio_write time: 17648
+Вывод: запись в файл с помощью билиотеки stdio в 26 раз быстрее, чем POSIX, так как в stdio неявно используется буфер.
+
+3.

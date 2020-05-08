@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}",
-            "args": [],
+            "args": ["./lab_6/tests/create_csum_test1.txt","./lab_6/tests/create_csum_test1.txt.csum"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

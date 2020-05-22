@@ -1,0 +1,269 @@
+2. valgrind --tool=helgrind ./hw/main-race
+    ==1453== Possible data race during read of size 4 at 0x10C07C by thread #1
+    ==1453== Locks held: none
+    ==1453==    at 0x1094D0: main (main-race.c:15)
+    ==1453== 
+    ==1453== This conflicts with a previous write of size 4 by thread #2
+    ==1453== Locks held: none
+    ==1453==    at 0x109497: worker (main-race.c:8)
+    ==1453==    by 0x483C8B6: mythread_wrapper (hg_intercepts.c:389)
+    ==1453==    by 0x4858FA2: start_thread (pthread_create.c:486)
+    ==1453==    by 0x496B4CE: clone (clone.S:95)
+    ==1453==  Address 0x10c07c is 0 bytes inside data symbol "balance"
+    
+    Найдена ошибка data race при работе с переменной balance в 8 и 15 строке
+    исправляется атомарной операцией
+    исправленая версия main-race-good не имееет ошибок
+    valgrind --tool=helgrind ./main-race-good
+    ==2009== Helgrind, a thread error detector
+    ==2009== Copyright (C) 2007-2017, and GNU GPL'd, by OpenWorks LLP et al.
+    ==2009== Using Valgrind-3.14.0 and LibVEX; rerun with -h for copyright info
+    ==2009== Command: ./main-race-good
+    ==2009== For counts of detected and suppressed errors, rerun with: -v
+    ==2009== Use --history-level=approx or =none to gain increased speed, at
+    ==2009== the cost of reduced accuracy of conflicting-access information
+    ==2009== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+
+
+3. 
+    valgrind --tool=helgrind ./hw/main-deadlock
+    ==1069== Helgrind, a thread error detector
+    ==1069== Copyright (C) 2007-2017, and GNU GPL'd, by OpenWorks LLP et al.
+    ==1069== Using Valgrind-3.14.0 and LibVEX; rerun with -h for copyright info
+    ==1069== Command: ./hw/main-deadlock
+    ==1069== 
+    ==1069== ---Thread-Announcement------------------------------------------
+    ==1069== 
+    ==1069== Thread #3 was created
+    ==1069==    at 0x496B4BE: clone (clone.S:71)
+    ==1069==    by 0x4857DDE: create_thread (createthread.c:101)
+    ==1069==    by 0x485980D: pthread_create@@GLIBC_2.2.5 (pthread_create.c:826)
+    ==1069==    by 0x483C6B7: pthread_create_WRK (hg_intercepts.c:427)
+    ==1069==    by 0x10940C: Pthread_create (mythreads.h:51)
+    ==1069==    by 0x109532: main (main-deadlock.c:24)
+    ==1069== 
+    ==1069== ----------------------------------------------------------------
+    ==1069== 
+    ==1069== Thread #3: lock order "0x10C0A0 before 0x10C0E0" violated
+    ==1069== 
+    ==1069== Observed (incorrect) order is: acquisition of lock at 0x10C0E0
+    ==1069==    at 0x4839CCC: mutex_lock_WRK (hg_intercepts.c:909)
+    ==1069==    by 0x10928F: Pthread_mutex_lock (mythreads.h:23)
+    ==1069==    by 0x1094BE: worker (main-deadlock.c:13)
+    ==1069==    by 0x483C8B6: mythread_wrapper (hg_intercepts.c:389)
+    ==1069==    by 0x4858FA2: start_thread (pthread_create.c:486)
+    ==1069==    by 0x496B4CE: clone (clone.S:95)
+    ==1069== 
+    ==1069==  followed by a later acquisition of lock at 0x10C0A0
+    ==1069==    at 0x4839CCC: mutex_lock_WRK (hg_intercepts.c:909)
+    ==1069==    by 0x10928F: Pthread_mutex_lock (mythreads.h:23)
+    ==1069==    by 0x1094CA: worker (main-deadlock.c:14)
+    ==1069==    by 0x483C8B6: mythread_wrapper (hg_intercepts.c:389)
+    ==1069==    by 0x4858FA2: start_thread (pthread_create.c:486)
+    ==1069==    by 0x496B4CE: clone (clone.S:95)
+    ==1069== 
+    ==1069== Required order was established by acquisition of lock at 0x10C0A0
+    ==1069==    at 0x4839CCC: mutex_lock_WRK (hg_intercepts.c:909)
+    ==1069==    by 0x10928F: Pthread_mutex_lock (mythreads.h:23)
+    ==1069==    by 0x1094A4: worker (main-deadlock.c:10)
+    ==1069==    by 0x483C8B6: mythread_wrapper (hg_intercepts.c:389)
+    ==1069==    by 0x4858FA2: start_thread (pthread_create.c:486)
+    ==1069==    by 0x496B4CE: clone (clone.S:95)
+    ==1069== 
+    ==1069==  followed by a later acquisition of lock at 0x10C0E0
+    ==1069==    at 0x4839CCC: mutex_lock_WRK (hg_intercepts.c:909)
+    ==1069==    by 0x10928F: Pthread_mutex_lock (mythreads.h:23)
+    ==1069==    by 0x1094B0: worker (main-deadlock.c:11)
+    ==1069==    by 0x483C8B6: mythread_wrapper (hg_intercepts.c:389)
+    ==1069==    by 0x4858FA2: start_thread (pthread_create.c:486)
+    ==1069==    by 0x496B4CE: clone (clone.S:95)
+    ==1069== 
+    ==1069==  Lock at 0x10C0A0 was first observed
+    ==1069==    at 0x4839CCC: mutex_lock_WRK (hg_intercepts.c:909)
+    ==1069==    by 0x10928F: Pthread_mutex_lock (mythreads.h:23)
+    ==1069==    by 0x1094A4: worker (main-deadlock.c:10)
+    ==1069==    by 0x483C8B6: mythread_wrapper (hg_intercepts.c:389)
+    ==1069==    by 0x4858FA2: start_thread (pthread_create.c:486)
+    ==1069==    by 0x496B4CE: clone (clone.S:95)
+    ==1069==  Address 0x10c0a0 is 0 bytes inside data symbol "m1"
+    ==1069== 
+    ==1069==  Lock at 0x10C0E0 was first observed
+    ==1069==    at 0x4839CCC: mutex_lock_WRK (hg_intercepts.c:909)
+    ==1069==    by 0x10928F: Pthread_mutex_lock (mythreads.h:23)
+    ==1069==    by 0x1094B0: worker (main-deadlock.c:11)
+    ==1069==    by 0x483C8B6: mythread_wrapper (hg_intercepts.c:389)
+    ==1069==    by 0x4858FA2: start_thread (pthread_create.c:486)
+    ==1069==    by 0x496B4CE: clone (clone.S:95)
+    ==1069==  Address 0x10c0e0 is 0 bytes inside data symbol "m2"
+    ==1069== 
+    ==1069== 
+    ==1069== 
+    ==1069== For counts of detected and suppressed errors, rerun with: -v
+    ==1069== Use --history-level=approx or =none to gain increased speed, at
+    ==1069== the cost of reduced accuracy of conflicting-access information
+    ==1069== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 7 from 7)
+
+    valgrind обнаружил ошибочный порядок блокировки мьютексов.
+
+4. 
+==1407== Helgrind, a thread error detector
+==1407== Copyright (C) 2007-2017, and GNU GPL'd, by OpenWorks LLP et al.
+==1407== Using Valgrind-3.14.0 and LibVEX; rerun with -h for copyright info
+==1407== Command: ./hw/main-deadlock
+==1407== 
+==1407== ---Thread-Announcement------------------------------------------
+==1407== 
+==1407== Thread #3 was created
+==1407==    at 0x496B4BE: clone (clone.S:71)
+==1407==    by 0x4857DDE: create_thread (createthread.c:101)
+==1407==    by 0x485980D: pthread_create@@GLIBC_2.2.5 (pthread_create.c:826)
+==1407==    by 0x483C6B7: pthread_create_WRK (hg_intercepts.c:427)
+==1407==    by 0x10940C: Pthread_create (mythreads.h:51)
+==1407==    by 0x109532: main (main-deadlock.c:24)
+==1407== 
+==1407== ----------------------------------------------------------------
+==1407== 
+==1407== Thread #3: lock order "0x10C0A0 before 0x10C0E0" violated
+==1407== 
+==1407== Observed (incorrect) order is: acquisition of lock at 0x10C0E0
+==1407==    at 0x4839CCC: mutex_lock_WRK (hg_intercepts.c:909)
+==1407==    by 0x10928F: Pthread_mutex_lock (mythreads.h:23)
+==1407==    by 0x1094BE: worker (main-deadlock.c:13)
+==1407==    by 0x483C8B6: mythread_wrapper (hg_intercepts.c:389)
+==1407==    by 0x4858FA2: start_thread (pthread_create.c:486)
+==1407==    by 0x496B4CE: clone (clone.S:95)
+==1407== 
+==1407==  followed by a later acquisition of lock at 0x10C0A0
+==1407==    at 0x4839CCC: mutex_lock_WRK (hg_intercepts.c:909)
+==1407==    by 0x10928F: Pthread_mutex_lock (mythreads.h:23)
+==1407==    by 0x1094CA: worker (main-deadlock.c:14)
+==1407==    by 0x483C8B6: mythread_wrapper (hg_intercepts.c:389)
+==1407==    by 0x4858FA2: start_thread (pthread_create.c:486)
+==1407==    by 0x496B4CE: clone (clone.S:95)
+==1407== 
+==1407== Required order was established by acquisition of lock at 0x10C0A0
+==1407==    at 0x4839CCC: mutex_lock_WRK (hg_intercepts.c:909)
+==1407==    by 0x10928F: Pthread_mutex_lock (mythreads.h:23)
+==1407==    by 0x1094A4: worker (main-deadlock.c:10)
+==1407==    by 0x483C8B6: mythread_wrapper (hg_intercepts.c:389)
+==1407==    by 0x4858FA2: start_thread (pthread_create.c:486)
+==1407==    by 0x496B4CE: clone (clone.S:95)
+==1407== 
+==1407==  followed by a later acquisition of lock at 0x10C0E0
+==1407==    at 0x4839CCC: mutex_lock_WRK (hg_intercepts.c:909)
+==1407==    by 0x10928F: Pthread_mutex_lock (mythreads.h:23)
+==1407==    by 0x1094B0: worker (main-deadlock.c:11)
+==1407==    by 0x483C8B6: mythread_wrapper (hg_intercepts.c:389)
+==1407==    by 0x4858FA2: start_thread (pthread_create.c:486)
+==1407==    by 0x496B4CE: clone (clone.S:95)
+==1407== 
+==1407==  Lock at 0x10C0A0 was first observed
+==1407==    at 0x4839CCC: mutex_lock_WRK (hg_intercepts.c:909)
+==1407==    by 0x10928F: Pthread_mutex_lock (mythreads.h:23)
+==1407==    by 0x1094A4: worker (main-deadlock.c:10)
+==1407==    by 0x483C8B6: mythread_wrapper (hg_intercepts.c:389)
+==1407==    by 0x4858FA2: start_thread (pthread_create.c:486)
+==1407==    by 0x496B4CE: clone (clone.S:95)
+==1407==  Address 0x10c0a0 is 0 bytes inside data symbol "m1"
+==1407== 
+==1407==  Lock at 0x10C0E0 was first observed
+==1407==    at 0x4839CCC: mutex_lock_WRK (hg_intercepts.c:909)
+==1407==    by 0x10928F: Pthread_mutex_lock (mythreads.h:23)
+==1407==    by 0x1094B0: worker (main-deadlock.c:11)
+==1407==    by 0x483C8B6: mythread_wrapper (hg_intercepts.c:389)
+==1407==    by 0x4858FA2: start_thread (pthread_create.c:486)
+==1407==    by 0x496B4CE: clone (clone.S:95)
+==1407==  Address 0x10c0e0 is 0 bytes inside data symbol "m2"
+==1407== 
+==1407== 
+==1407== 
+==1407== For counts of detected and suppressed errors, rerun with: -v
+==1407== Use --history-level=approx or =none to gain increased speed, at
+==1407== the cost of reduced accuracy of conflicting-access information
+==1407== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 7 from 7)
+
+найдены те же самые ошибки порядка блокировки мьютексов
+
+5.  valgrind --tool=helgrind ./hw/main-signal
+==1625== Helgrind, a thread error detector
+==1625== Copyright (C) 2007-2017, and GNU GPL'd, by OpenWorks LLP et al.
+==1625== Using Valgrind-3.14.0 and LibVEX; rerun with -h for copyright info
+==1625== Command: ./hw/main-signal
+==1625== 
+this should print first
+==1625== ---Thread-Announcement------------------------------------------
+==1625== 
+==1625== Thread #1 is the program's root thread
+==1625== 
+==1625== ---Thread-Announcement------------------------------------------
+==1625== 
+==1625== Thread #2 was created
+==1625==    at 0x496B4BE: clone (clone.S:71)
+==1625==    by 0x4857DDE: create_thread (createthread.c:101)
+==1625==    by 0x485980D: pthread_create@@GLIBC_2.2.5 (pthread_create.c:826)
+==1625==    by 0x483C6B7: pthread_create_WRK (hg_intercepts.c:427)
+==1625==    by 0x10941C: Pthread_create (mythreads.h:51)
+==1625==    by 0x1094EA: main (main-signal.c:15)
+==1625== 
+==1625== ----------------------------------------------------------------
+==1625== 
+==1625== Possible data race during read of size 4 at 0x10C084 by thread #1
+==1625== Locks held: none
+==1625==    at 0x1094EC: main (main-signal.c:16)
+==1625== 
+==1625== This conflicts with a previous write of size 4 by thread #2
+==1625== Locks held: none
+==1625==    at 0x1094AE: worker (main-signal.c:9)
+==1625==    by 0x483C8B6: mythread_wrapper (hg_intercepts.c:389)
+==1625==    by 0x4858FA2: start_thread (pthread_create.c:486)
+==1625==    by 0x496B4CE: clone (clone.S:95)
+==1625==  Address 0x10c084 is 0 bytes inside data symbol "done"
+==1625== 
+==1625== ----------------------------------------------------------------
+==1625== 
+==1625== Possible data race during write of size 1 at 0x52371A5 by thread #1
+==1625== Locks held: none
+==1625==    at 0x48425C6: mempcpy (vg_replace_strmem.c:1536)
+==1625==    by 0x48ED9E4: _IO_new_file_xsputn (fileops.c:1243)
+==1625==    by 0x48ED9E4: _IO_file_xsputn@@GLIBC_2.2.5 (fileops.c:1204)
+==1625==    by 0x48E39DD: puts (ioputs.c:40)
+==1625==    by 0x109501: main (main-signal.c:18)
+==1625==  Address 0x52371a5 is 21 bytes inside a block of size 1,024 alloc'd
+==1625==    at 0x48367CF: malloc (vg_replace_malloc.c:299)
+==1625==    by 0x48E171B: _IO_file_doallocate (filedoalloc.c:101)
+==1625==    by 0x48EF6FF: _IO_doallocbuf (genops.c:347)
+==1625==    by 0x48EE987: _IO_file_overflow@@GLIBC_2.2.5 (fileops.c:752)
+==1625==    by 0x48EDA8E: _IO_new_file_xsputn (fileops.c:1251)
+==1625==    by 0x48EDA8E: _IO_file_xsputn@@GLIBC_2.2.5 (fileops.c:1204)
+==1625==    by 0x48E39DD: puts (ioputs.c:40)
+==1625==    by 0x1094AD: worker (main-signal.c:8)
+==1625==    by 0x483C8B6: mythread_wrapper (hg_intercepts.c:389)
+==1625==    by 0x4858FA2: start_thread (pthread_create.c:486)
+==1625==    by 0x496B4CE: clone (clone.S:95)
+==1625==  Block was alloc'd by thread #2
+==1625== 
+this should print last
+==1625== 
+==1625== For counts of detected and suppressed errors, rerun with: -v
+==1625== Use --history-level=approx or =none to gain increased speed, at
+==1625== the cost of reduced accuracy of conflicting-access information
+==1625== ERROR SUMMARY: 23 errors from 2 contexts (suppressed: 40 from 40)
+
+    ошибка data race, запись и чтение переменной done без синхронизации.
+
+6. valgrind --tool=helgrind ./hw/main-signal-cv
+==1695== Helgrind, a thread error detector
+==1695== Copyright (C) 2007-2017, and GNU GPL'd, by OpenWorks LLP et al.
+==1695== Using Valgrind-3.14.0 and LibVEX; rerun with -h for copyright info
+==1695== Command: ./hw/main-signal-cv
+==1695== 
+this should print first
+this should print last
+==1695== 
+==1695== For counts of detected and suppressed errors, rerun with: -v
+==1695== Use --history-level=approx or =none to gain increased speed, at
+==1695== the cost of reduced accuracy of conflicting-access information
+==1695== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 7 from 7)
+
+ошиби не обнаружены так как используются функции pthread_cond_wait() и Pthread_cond_signal(&s->cond);
